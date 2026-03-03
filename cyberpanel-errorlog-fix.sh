@@ -22,9 +22,16 @@ for VHOST_DIR in "$VHOSTS_BASE"/*; do
             cp "$VHOST_CONF" "$VHOST_CONF.bak.$(date +%F-%H%M%S)"
             CHANGED=0
             if grep -iq "logLevel" "$VHOST_CONF"; then
-                sed -i 's/logLevel\s\+WARN/logLevel                WARNING/i' "$VHOST_CONF" && CHANGED=1
-                sed -i 's/logLevel\s\+warn/logLevel                WARNING/i' "$VHOST_CONF" && CHANGED=1
-                sed -i 's/logLevel\s\+Warning/logLevel                WARNING/i' "$VHOST_CONF" && CHANGED=1
+                # Replace only logLevel lines where the level is exactly WARN/warn/Warning (not WARNING)
+                sed -i '/logLevel[[:space:]]\+WARN$/i\' "$VHOST_CONF" && \
+                    sed -i 's/logLevel[[:space:]]\+WARN$/logLevel                WARNING/i' "$VHOST_CONF" && CHANGED=1
+                sed -i '/logLevel[[:space:]]\+warn$/i\' "$VHOST_CONF" && \
+                    sed -i 's/logLevel[[:space:]]\+warn$/logLevel                WARNING/i' "$VHOST_CONF" && CHANGED=1
+                sed -i '/logLevel[[:space:]]\+Warning$/i\' "$VHOST_CONF" && \
+                    sed -i 's/logLevel[[:space:]]\+Warning$/logLevel                WARNING/i' "$VHOST_CONF" && CHANGED=1
+                if grep -q "logLevel[[:space:]]\+WARNINGING" "$VHOST_CONF"; then
+                    echo "[$VH_NAME] logLevel WARNINGING found and should be fixed in $VHOST_CONF"
+                fi
                 [ $CHANGED -eq 1 ] && echo "[$VH_NAME] logLevel set to WARNING in $VHOST_CONF"
             fi
 
@@ -39,10 +46,11 @@ for VHOST_DIR in "$VHOSTS_BASE"/*; do
             LOG_DIR="/home/$VH_NAME/logs"
             if [ ! -d "$LOG_DIR" ]; then
                 mkdir -p "$LOG_DIR"
-                chown root:nobody "$LOG_DIR"
-                chmod 755 "$LOG_DIR"
                 echo "[$VH_NAME] logs directory created at $LOG_DIR"
             fi
+            chown root:nobody "$LOG_DIR"
+            chmod 755 "$LOG_DIR"
+            echo "[$VH_NAME] logs directory permissions and ownership fixed"
         fi
     fi
 done
