@@ -6,6 +6,15 @@ A simple bash script to automatically fix PHP error log permissions and logLevel
 
 ---
 
+## Fork Changes
+
+- `logLevel` updates were incorrectly setting vhost configs with `WARNING` to `WARNINGING` - this is fixed
+- Makes the script always perform the permission/ownership changes on the `log` folder (without this, the script could leave `log` folders with bad permissions/ownership untouched)
+- Creates a backup of all the vhost configurations and places it into `/root/backup/lsws_vhosts/`
+- Consolidated unneeded lines
+
+---
+
 ## What does this script do?
 
 - Scans all vhosts on your CyberPanel server.
@@ -21,7 +30,7 @@ A simple bash script to automatically fix PHP error log permissions and logLevel
 Run this command as root to download and execute the script in one line:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/jesussuarz/cyberpanel-errorlog-fixer/refs/heads/main/cyberpanel-errorlog-fix.sh | bash
+curl -sSL https://raw.githubusercontent.com/git-myintegrator/cyberpanel-errorlog-fixer/refs/heads/main/cyberpanel-errorlog-fix.sh | bash
 ```
 
 ## How it works
